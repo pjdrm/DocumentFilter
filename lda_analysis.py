@@ -44,34 +44,16 @@ class MyDictionary(object):
 
 def lda_analysis(docsDir, n_topics):
     docs = getSegments(docsDir)
-    vectorizer = CountVectorizer(analyzer = "word", strip_accents = "unicode", stop_words = stopwords.words("english"), max_features = 500)
-    wd_matrix = vectorizer.fit_transform(docs)
+    tf_vectorizer = CountVectorizer(analyzer = "word", strip_accents = "unicode", stop_words = stopwords.words("english"), max_features = 500)
+    dtm_tf = tf_vectorizer.fit_transform(docs)
     
-    '''
     lda_tf = LatentDirichletAllocation(n_topics=n_topics, random_state=0)
-    lda_tf.fit(wd_matrix)
-    pyLDAvis.enable_notebook()
-    return lda_tf, wd_matrix, vectorizer
-    '''
+    lda_tf.fit(dtm_tf)
+    doc_topic = lda_tf.transform(dtm_tf)
+    print(doc_topic)
     
-    wd_matrix_dense = wd_matrix.toarray()
-    docs_sparse_gensim = []
-    for i in range(wd_matrix_dense.shape[0]):
-        doc_sparse_gensim = []
-        for j in range(wd_matrix_dense.shape[1]):
-            val = wd_matrix_dense[i, j]
-            if not val == 0:
-                doc_sparse_gensim.append((j, val))
-        doc_sparse_gensim = sorted(doc_sparse_gensim, key=lambda tup: tup[0])
-        docs_sparse_gensim.append(doc_sparse_gensim)
-                
-    id2word =  {v: k for k, v in vectorizer.vocabulary_.items()}
-    lda = ldamodel.LdaModel(corpus=docs_sparse_gensim, id2word=id2word, num_topics=n_topics, update_every=1, chunksize=2, passes=100)
-    return lda, docs_sparse_gensim, MyDictionary(vectorizer.vocabulary_)
     
-    topics_str = lda.print_topics(n_topics, 6)
-    for topic_str in topics_str:
-        print(topic_str)
+    return lda_tf, dtm_tf, tf_vectorizer
     
 def getDocs(docsDir):
     docs = []
@@ -99,14 +81,14 @@ def getSegments(docsDir):
     docs = []
     for file_path in files_list:
         with open(file_path, encoding="utf8", errors='ignore') as f:
-            doc = f.readlines()
-            doc = doc[1:-1]
-            docs.append(' '.join(doc))
+            doc = f.read()
+            docSegs = doc.split("==========\n")[1:]
+            docSegs[-1] = docSegs[-1][:-11]
+            for seg in docSegs:
+                docs.append(seg)
     return docs
 
-lda, corpus, dic = lda_analysis("/home/pjdrm/Desktop/GoogleScraper/Segment_relation_annotation/L02", 15)
+lda_tf, dtm_tf, tf_vectorizer = lda_analysis("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted/L02", 5)
 pyLDAvis.enable_notebook()
-vis_data = pyLDAvis.gensim.prepare(lda, corpus, dic)
-pyLDAvis.display(vis_data)   
-        
-        
+vis_data = pyLDAvis.sklearn.prepare(lda_tf, dtm_tf, tf_vectorizer)
+pyLDAvis.display(vis_data)
