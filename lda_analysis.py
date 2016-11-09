@@ -51,8 +51,6 @@ def lda_analysis(docsDir, n_topics):
     lda_tf.fit(dtm_tf)
     doc_topic = lda_tf.transform(dtm_tf)
     print(doc_topic)
-    
-    
     return lda_tf, dtm_tf, tf_vectorizer
     
 def getDocs(docsDir):
@@ -88,7 +86,8 @@ def getSegments(docsDir):
                 docs.append(seg)
     return docs
 
-lda_tf, dtm_tf, tf_vectorizer = lda_analysis("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted/L02", 5)
+#lda_tf, dtm_tf, tf_vectorizer = lda_analysis("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted/L02", 5)
+lda_tf, dtm_tf, tf_vectorizer = lda_analysis("/home/pjdrm/workspace/TopicSegmentationScripts/syn_segs", 5)
 pyLDAvis.enable_notebook()
 vis_data = pyLDAvis.sklearn.prepare(lda_tf, dtm_tf, tf_vectorizer)
 pyLDAvis.display(vis_data)

@@ -259,6 +259,6 @@ run_incremental("/home/pjdrm/Desktop/GoogleScraper/in_docs/physics", "/home/pjdr
 '''
 
 #run_type_pure("/home/pjdrm/Desktop/GoogleScraper/in_docs/physics", "/home/pjdrm/Desktop/GoogleScraper/docs_annoted/L02", "physics_L02_pure_ppt", "ppt")
-#run2("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted", "minwoo_corpora", "minwoo_results", "minwoo_config")
-run3("/home/pjdrm/workspace/TopicSegmentationScripts/mw_data2_jacob", "minwoo_news_corpora", "minwoo_news_results", "minwoo_news_config")
+run2("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted", "minwoo_corpora", "minwoo_results", "minwoo_config")
+#run3("/home/pjdrm/workspace/TopicSegmentationScripts/mw_data2_jacob", "minwoo_news_corpora", "minwoo_news_results", "minwoo_news_config")
         

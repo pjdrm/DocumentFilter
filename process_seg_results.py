@@ -18,6 +18,13 @@ def run_mw_results(resultsDir):
     resDic["all"] = spider_allDocs_results_mw(resultsDir)
     return resDic
 
+def run_mota_results(resultsDir, jacob_resultsDir):
+    resDic = {}
+    resDic["indv"] = run_jacob_results(jacob_resultsDir)
+    resDic["doc_type"] = spider_docType_results_mota(resultsDir)
+    resDic["all"] = spider_allDocs_results_mota(resultsDir)
+    return resDic
+
 def run_jacob_results(resultsDir):
     resultsDic = {}
     for dir in os.listdir(resultsDir):
@@ -88,6 +95,45 @@ def get_mw_result(filePath):
             strSplit = lin.split(" ")
             docName = strSplit[0].replace("docName=", "")
             wd = float(strSplit[7].replace("wd=", ""))
+            results.append((docName, wd))
+    return results
+
+def spider_docType_results_mota(resultsDir):
+    resultsDic = {}
+    for dir in os.listdir(resultsDir):
+        resultsDic[dir] = {}
+        for resFile in os.listdir(os.path.join(resultsDir, dir)):
+            if "_all" in resFile:
+                continue
+            docTypeRes = resFile.replace("_results.txt", "")
+            resultsDic[dir][docTypeRes] = {}
+            results = get_mota_result(os.path.join(resultsDir, dir, resFile))
+            for docName, wd in results:
+                resultsDic[dir][docTypeRes][docName] = wd
+    return resultsDic
+
+def spider_allDocs_results_mota(resultsDir):
+    resultsDic = {}
+    for dir in os.listdir(resultsDir):
+        resultsDic[dir] = {}
+        for resFile in os.listdir(os.path.join(resultsDir, dir)):
+            if "_all" in resFile:
+                docTypeRes = resFile.replace("_results.txt", "")
+                results = get_mota_result(os.path.join(resultsDir, dir, resFile))
+                for docName, wd in results:
+                    resultsDic[dir][docName] = wd
+                break
+    return resultsDic
+
+def get_mota_result(filePath):
+    results = []
+    with open(filePath) as f:
+        for lin in f.readlines():
+            if not lin.startswith("doc "):
+                continue
+            strSplit = lin.split(" ")
+            docName = strSplit[1][:-1]
+            wd = float(strSplit[5])
             results.append((docName, wd))
     return results
 
@@ -295,7 +341,7 @@ def plot_doc_types_results(y_results, y_labels, y_axis_label, x_labels, x_axis_l
     plt.savefig(outFile)
     #plt.show()
             
-def run(mw_results, bayeseg_results, mincut_results):
+def run(mw_results, bayeseg_results, mincut_results, mota_results):
     all_corpora_dir = "all_corpora_results"
     if os.path.isdir(all_corpora_dir):
         shutil.rmtree(all_corpora_dir)
@@ -310,6 +356,7 @@ def run(mw_results, bayeseg_results, mincut_results):
     resDic["Minwoo"] = run_mw_results(mw_results)
     resDic["Bayeseg"] = run_jacob_results(bayeseg_results)
     resDic["Mincut"] = run_jacob_results(mincut_results)
+    resDic["Mota"] = run_mota_results(mota_results, bayeseg_results)
     #print(json.dumps(resDic["Jacob"], indent=4, sort_keys=True))
     run_general_resView(resDic, all_corpora_dir)
     run_general_docType_resView(resDic, all_corpora_dir)
@@ -328,5 +375,5 @@ def run2(mw_results):
             
     print("AVG WD: %f" % (total_wd /n_docs))
         
-run("experiments/minwoo_results", "experiments/jacob_results/bayeseg", "experiments/jacob_results/mincut")
+run("experiments/minwoo_results", "experiments/jacob_results/bayeseg", "experiments/jacob_results/mincut", "experiments/mota_results")
 #run2("experiments/mw_news_results")
