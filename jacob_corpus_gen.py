@@ -94,5 +94,5 @@ def run(docDirs, results_rootDir, configs, resDirs):
         with open("run_jacob_exp.sh", "w+") as f:
             f.write(script[:-1])
         
-run("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted", "jacob_results", ["config/dp.config", "config/mcsopt.ai.config", "config/lcseg.config", ], ["bayeseg", "mincut", "lseg"])
+run("/home/pjdrm/Dropbox/PhD/Physics_Lectures_Annotations/docs_annoted", "jacob_results", ["config/dp.config", "config/mcsopt.ai.config", "config/ui.config", ], ["bayeseg", "mincut", "ui"])
 #run_converter("/home/pjdrm/Desktop/minwoo_datasets/News/", "mw_data2_jacob")

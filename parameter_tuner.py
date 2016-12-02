@@ -2,7 +2,7 @@ import subprocess
 import time
 
 class Parameter(object):
-    def __init__(self, paramName, stepSize, param_init, maxSteps = 10):
+    def __init__(self, paramName, stepSize, param_init, maxSteps = 5):
         self.param_val = param_init
         self.stepSize = stepSize
         self.maxSteps = maxSteps
@@ -76,24 +76,27 @@ class SegmentationParamOptimizer(object):
         result = ""
         result = p.stdout.readlines()
         return self.getWD(result)
-
-nDocsParam = Parameter("N", 10, 10)
-nTfidfParam = Parameter("nTfidf", 10, 20)
+    
+maxSteps = 10
+nDocsParam = Parameter("N", 10, 10, maxSteps)
+nTfidfParam = Parameter("nTfidf", 10, 20, maxSteps)
 nIters = 20
 
-optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/bayeseg-MD/mota_corpus/L03/docs_video/tests", "parameter_tuning/best_configs/L03/L03_docs_video_tuned.xml", "parameter_tuning/results/L03/video_results.txt")
+'''
+optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/TopicSegmentationScripts/parameter_tuning/dev_set/L03/video/tests", "parameter_tuning/best_configs/L03/L03_docs_video_tuned.xml", "parameter_tuning/results/L03/video_results.txt")
 optimizer.optimize()
 
-optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/bayeseg-MD/mota_corpus/L03/docs_html/tests", "parameter_tuning/best_configs/L03/L03_docs_html_tuned.xml", "parameter_tuning/results/L03/html_results.txt")
+optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/TopicSegmentationScripts/parameter_tuning/dev_set/L03/html/tests", "parameter_tuning/best_configs/L03/L03_docs_html_tuned.xml", "parameter_tuning/results/L03/html_results.txt")
 optimizer.optimize()
 
-optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/bayeseg-MD/mota_corpus/L03/docs_pdf/tests", "parameter_tuning/best_configs/L03/L03_docs_pdf_tuned.xml", "parameter_tuning/results/L03/pdf_results.txt")
+optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/TopicSegmentationScripts/parameter_tuning/dev_set/L03/pdf/tests", "parameter_tuning/best_configs/L03/L03_docs_pdf_tuned.xml", "parameter_tuning/results/L03/pdf_results.txt")
 optimizer.optimize()
 
-optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/bayeseg-MD/mota_corpus/L03/docs_ppt/tests", "parameter_tuning/best_configs/L03/L03_docs_ppt_tuned.xml", "parameter_tuning/results/L03/ppt_results.txt")
+optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/TopicSegmentationScripts/parameter_tuning/dev_set/L03/ppt/tests", "parameter_tuning/best_configs/L03/L03_docs_ppt_tuned.xml", "parameter_tuning/results/L03/ppt_results.txt")
 optimizer.optimize()
+'''
 
-#optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/bayeseg-MD/mota_corpus/L03/docs_all/tests", "parameter_tuning/best_configs/L03/L03_docs_all_tuned.xml", "parameter_tuning/results/L03/all_results.txt")
-#optimizer.optimize()
+optimizer = SegmentationParamOptimizer([nDocsParam, nTfidfParam], nIters, "/home/pjdrm/workspace/TopicSegmentationScripts/parameter_tuning/dev_set/L03/docs_all/tests", "parameter_tuning/best_configs/L03/L03_docs_all_tuned.xml", "parameter_tuning/results/L03/all_results.txt")
+optimizer.optimize()
     
     

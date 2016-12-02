@@ -11,6 +11,27 @@ import numpy as np
 import pandas as pd
 import shutil
 
+def run_aps_results(resultsDir):
+    resultsDic = {}
+    for dir in os.listdir(resultsDir):
+        resultsDic[dir] = {}
+        res = get_aps_result(os.path.join(resultsDir, dir, "docs_all/individual_results.txt"))
+        resultsDic[dir] = {}
+        for docName, wd in res:
+            resultsDic[dir][docName] = wd
+    return resultsDic
+
+def get_aps_result(filePath):
+    results = []
+    with open(filePath) as f:
+        for lin in f.readlines():
+            if lin.startswith("processing"):
+                docName = lin.split(" ")[-1].split("/")[-1][:-1]
+            if lin.startswith("Regular WinDiff:"):
+                wd = float(lin.split("Regular WinDiff: ")[1])
+                results.append((docName, wd))
+    return results
+
 def run_mw_results(resultsDir):
     resDic = {}
     resDic["indv"] = spider_ind_results_mw(resultsDir)
@@ -232,6 +253,20 @@ def run_general_docType_resView(resultsDic, outDir):
             
     plot_doc_types_results(y_vals, y_labels, "AVG WindowDiff", x_labels, "", "", os.path.join(outDir, "results_exp1.png"))
     
+'''
+This function plots the results regarding the
+video lecture that already existed in the
+original Physics dataset.
+
+The first column ("indv") corresponds to the results just using
+the video lecture.
+
+The second column ("video") corresponds to the results just using
+all videos in the dataset.
+
+The second column ("all") corresponds to the results just using
+all documents in the dataset.
+'''
 def run_ref_lectures_resView(resultsDic, refDocType, outDir):
     segmentor = list(resultsDic.keys())[0]
     if "indv" in resultsDic[segmentor]:
@@ -239,10 +274,10 @@ def run_ref_lectures_resView(resultsDic, refDocType, outDir):
     else:
         lectures = resultsDic[segmentor].keys()
     
+    x_labels = ["indv", "video", "all"]
     for lect in lectures:
         y_vals = []
         y_labels = []
-        x_labels = ["indv", "video", "all"]
         for segmentor in resultsDic:
             y_labels.append(segmentor)
             if "indv" in resultsDic[segmentor]:
@@ -253,8 +288,16 @@ def run_ref_lectures_resView(resultsDic, refDocType, outDir):
             else:
                 indv_wd_avg = get_ref_wd(resultsDic[segmentor][lect])
                 y_vals.append([indv_wd_avg]*3)
-        plot_doc_types_results(y_vals, y_labels, "WindowDiff", "", x_labels, lect + "Results", os.path.join(outDir, "results_exp_" + lect + ".png"))
-        
+        plot_doc_types_results(y_vals, y_labels, "WindowDiff", x_labels, "", lect + " Results", os.path.join(outDir, "results_exp_ref_" + lect + ".png"))
+
+'''
+This function plots the average results grouped
+by document type.
+
+For multi-document segmentation models, results are reported
+using both all documents has an external set and only the ones
+of the same type.
+'''        
 def run_avg_lectures_resView(resultsDic, outDir):
     segmentor = list(resultsDic.keys())[0]
     if "indv" in resultsDic[segmentor]:
@@ -293,7 +336,13 @@ def run_avg_lectures_resView(resultsDic, outDir):
                 y_vals.append([html_wd_avg, video_wd_avg, ppt_wd_avg, pdf_wd_avg])
             
         plot_doc_types_results(y_vals, y_labels, "WindowDiff", x_labels, "", "All " + lect + " Docs Results", os.path.join(outDir, "results_exp_allDocs_" + lect + ".png"))
-        
+'''
+Plots the average results for all orginal Physics 
+video lectures dataset.
+
+For multi-documents models, the results are reported
+using both only videos and all documents. 
+'''       
 def run_ref_lectures_avg_resView(resultsDic, refDocType, outDir):
     segmentor = list(resultsDic.keys())[0]
     if "indv" in resultsDic[segmentor]:
@@ -341,7 +390,7 @@ def plot_doc_types_results(y_results, y_labels, y_axis_label, x_labels, x_axis_l
     plt.savefig(outFile)
     #plt.show()
             
-def run(mw_results, bayeseg_results, mincut_results, mota_results):
+def run(mw_results, bayeseg_results, mincut_results, mota_results, aps_results, ui_results, texttiling_results, c99_results, cvs_results):
     all_corpora_dir = "all_corpora_results"
     if os.path.isdir(all_corpora_dir):
         shutil.rmtree(all_corpora_dir)
@@ -356,11 +405,17 @@ def run(mw_results, bayeseg_results, mincut_results, mota_results):
     resDic["Minwoo"] = run_mw_results(mw_results)
     resDic["Bayeseg"] = run_jacob_results(bayeseg_results)
     resDic["Mincut"] = run_jacob_results(mincut_results)
-    resDic["Mota"] = run_mota_results(mota_results, bayeseg_results)
+    resDic["U&I"] = run_jacob_results(ui_results)
+    #resDic["Mota"] = run_mota_results(mota_results, bayeseg_results)
+    resDic["APS"] = run_aps_results(aps_results)
+    resDic["TextTiling"] = run_jacob_results(texttiling_results)
+    resDic["C99"] = run_jacob_results(c99_results)
+    resDic["CVS"] = run_jacob_results(cvs_results)
     #print(json.dumps(resDic["Jacob"], indent=4, sort_keys=True))
     run_general_resView(resDic, all_corpora_dir)
     run_general_docType_resView(resDic, all_corpora_dir)
     run_ref_lectures_avg_resView(resDic, "docs_video", all_corpora_dir)
+    
     run_ref_lectures_resView(resDic, "docs_video", indv_lec_dir)
     run_avg_lectures_resView(resDic, indv_lec_dir)
     
@@ -375,5 +430,5 @@ def run2(mw_results):
             
     print("AVG WD: %f" % (total_wd /n_docs))
         
-run("experiments/minwoo_results", "experiments/jacob_results/bayeseg", "experiments/jacob_results/mincut", "experiments/mota_results")
+run("experiments/minwoo_results", "experiments/jacob_results/bayeseg", "experiments/jacob_results/mincut", "experiments/mota_results", "experiments/aps_results", "experiments/jacob_results/ui", "experiments/text_tiling_results", "experiments/c99_results", "experiments/cvs_results")
 #run2("experiments/mw_news_results")
